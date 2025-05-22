@@ -6,9 +6,13 @@ from .serializers import (
     CategorySerializer,
     ProductSerializer,
     ReviewSerializer,
-    ProductWithReviewsSerializer
+    ProductWithReviewsSerializer,
+    CategoryValidateSerializer,
+    ProductValidateSerializer,
+    ReviewValidateSerializer
 )
 from django.db.models import Avg
+from django.shortcuts import get_list_or_404
 
 
 @api_view(['GET', 'POST'])
@@ -19,7 +23,7 @@ def category_list_create_api_view(request):
         return Response(data=data, status=status.HTTP_200_OK)
 
     elif request.method == 'POST':
-        serializer = CategorySerializer(data=request.data)
+        serializer = CategoryValidateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
@@ -38,7 +42,7 @@ def category_detail_api_view(request, id):
         return Response(data=data)
 
     elif request.method == 'PUT':
-        serializer = CategorySerializer(instance=category, data=request.data)
+        serializer = CategoryValidateSerializer(instance=category, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(data=serializer.data, status=status.HTTP_200_OK)
@@ -57,7 +61,7 @@ def product_list_create_api_view(request):
         return Response(data=data)
 
     elif request.method == 'POST':
-        serializer = ProductSerializer(data=request.data)
+        serializer = ProductValidateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
@@ -91,22 +95,22 @@ def product_detail_api_view(request, id):
 def product_reviews_list_api_view(request):
     products = Product.objects.annotate(rating=Avg('reviews__stars'))
     data = ProductWithReviewsSerializer(products, many=True).data
-    return Response(data=data, status=status.HTTP_200_OK)  # ИСПРАВЛЕНО: satatus -> status
-
+    return Response(data=data, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
 def review_list_create_api_view(request):
     if request.method == 'GET':
         reviews = Review.objects.all()
-        data = ReviewSerializer(reviews, many=True).data
+        data = ReviewValidateSerializer(reviews, many=True).data
         return Response(data=data)
 
     elif request.method == 'POST':
-        serializer = ReviewSerializer(data=request.data)
+        serializer = ReviewValidateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 @api_view(['GET', 'PUT', 'DELETE'])  # ДОБАВЛЕНО: полный функционал
 def review_detail_api_view(request, id):
     try:
@@ -119,7 +123,7 @@ def review_detail_api_view(request, id):
         return Response(data=data)
 
     elif request.method == 'PUT':
-        serializer = ReviewSerializer(instance=review, data=request.data)
+        serializer = ReviewValidateSerializer(instance=review, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(data=serializer.data, status=status.HTTP_200_OK)
