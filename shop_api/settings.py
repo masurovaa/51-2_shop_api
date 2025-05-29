@@ -20,10 +20,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-_^f9gpcgp&y^nj$omm5y9&y&9l3a&dju_ug0m9h_y7vzr_^9i('
+SECRET_KEY = os.environ.get('SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True if os.environ.get('DEBUG', 'off') == 'on' else False
 
 ALLOWED_HOSTS = ['*']
 
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'users',
     'rest_framework.authtoken',
+    'drf_yasg',
 ]
 
 REST_FRAMEWORK = {
@@ -89,6 +90,19 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ.get('NAME_DB'),
+#         'USER': os.environ.get('USER_DB'),
+#         'PASSWORD': os.environ.get('PASSWORD_DB'),
+#         'HOST': os.environ.get('HOST_DB'),
+#         'PORT': os.environ.get('PORT_DB')
+#     }
+# }
+
+
 
 
 # Password validation
